@@ -9,20 +9,26 @@
   },
   "activationEvents": [
     "onLanguage:blend",
-    "onCommand:blendPreview.open"
+    "onCommand:blendPreview.open",
+    "onCustomEditor:blendPreview.blendEditor"
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "languages": [
+      {
+        "id": "blend",
+        "aliases": ["Blend"],
+        "extensions": [".blend"]
+      }
+    ],
     "customEditors": [
       {
         "viewType": "blendPreview.blendEditor",
         "displayName": "Blend File Editor",
         "selector": [
-          {
-            "language": "blend",
-            "scheme": "file"
-          }
-        ]
+          { "filenamePattern": "*.blend" }
+        ],
+        "priority": "default"
       }
     ],
     "commands": [
