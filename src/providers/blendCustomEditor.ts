@@ -1,13 +1,21 @@
 import * as vscode from 'vscode';
+import { parseBlendFile } from '../parsers/blendParser';
 
-export class BlendCustomEditor implements vscode.CustomTextEditorProvider {
-    
-    constructor(private readonly context: vscode.ExtensionContext) {
-        // Initialization code here
+export class BlendCustomEditor implements vscode.CustomReadonlyEditorProvider {
+
+    constructor(private readonly context: vscode.ExtensionContext) {}
+
+    // Create a minimal custom document for binary files
+    public async openCustomDocument(
+        uri: vscode.Uri,
+        _openContext: { backupId?: string },
+        _token: vscode.CancellationToken
+    ): Promise<vscode.CustomDocument> {
+        return { uri, dispose: () => {} };
     }
 
-    public async resolveCustomTextEditor(
-        document: vscode.TextDocument,
+    public async resolveCustomEditor(
+        document: vscode.CustomDocument,
         webviewPanel: vscode.WebviewPanel,
         _token: vscode.CancellationToken
     ): Promise<void> {
@@ -20,6 +28,30 @@ export class BlendCustomEditor implements vscode.CustomTextEditorProvider {
         };
 
         webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
+
+        // Initial render
+        await this.updatePreview(document, webviewPanel.webview);
+
+        // Re-render on file changes on disk
+        const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(document.uri, '*'));
+        const refresh = () => this.updatePreview(document, webviewPanel.webview);
+        watcher.onDidChange(refresh);
+        watcher.onDidCreate(refresh);
+        watcher.onDidDelete(() => {/* noop for now */});
+        webviewPanel.onDidDispose(() => watcher.dispose());
+    }
+
+    private async updatePreview(document: vscode.CustomDocument, webview: vscode.Webview) {
+        try {
+            // You can pass bytes if your parser needs them:
+            // const bytes = await vscode.workspace.fs.readFile(document.uri);
+
+            const parsed = await parseBlendFile(document.uri.fsPath);
+            const content = `<pre>${this.escapeHtml(JSON.stringify(parsed, null, 2))}</pre>`;
+            webview.postMessage({ type: 'update', content });
+        } catch (err: any) {
+            vscode.window.showErrorMessage(`Blend Preview: failed to parse file - ${err?.message ?? String(err)}`);
+        }
     }
 
     private getHtmlForWebview(webview: vscode.Webview): string {
@@ -29,7 +61,6 @@ export class BlendCustomEditor implements vscode.CustomTextEditorProvider {
         const styleUri = webview.asWebviewUri(
             vscode.Uri.joinPath(this.context.extensionUri, 'src', 'webview', 'styles.css')
         );
-
         const nonce = this.getNonce();
 
         return `<!DOCTYPE html>
@@ -59,5 +90,12 @@ export class BlendCustomEditor implements vscode.CustomTextEditorProvider {
             text += possible.charAt(Math.floor(Math.random() * possible.length));
         }
         return text;
+    }
+
+    private escapeHtml(value: string) {
+        return value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
     }
 }
