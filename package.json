@@ -2,7 +2,7 @@
   "name": "vscode-blend-preview",
   "displayName": "Blend Preview",
   "description": "A Visual Studio Code extension for previewing .blend files.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "satishgoda",
   "publisherDisplayName": "Satish Goda",
   "license": "MIT",
