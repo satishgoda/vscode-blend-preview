@@ -8,7 +8,7 @@ tsconfig*.json
 **/*.map
 
 # Sources (ship compiled JS in out/)
-src/**
+# src/**
 
 # Node modules and dependencies
 node_modules/**
