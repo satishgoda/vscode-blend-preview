@@ -90,6 +90,20 @@ class BlendCustomEditor {
                     this.updatePreview(document, webviewPanel.webview);
                 }
             }));
+            // Push initial settings and update upon configuration changes
+            const pushSettings = () => {
+                const config = vscode.workspace.getConfiguration('blendPreview');
+                const thumbnailHeight = config.get('gallery.thumbnailHeight', 140);
+                const columns = config.get('gallery.columns', 0);
+                webviewPanel.webview.postMessage({ type: 'settings', payload: { thumbnailHeight, columns } });
+            };
+            pushSettings();
+            const configSub = vscode.workspace.onDidChangeConfiguration(e => {
+                if (e.affectsConfiguration('blendPreview.gallery.thumbnailHeight') || e.affectsConfiguration('blendPreview.gallery.columns')) {
+                    pushSettings();
+                }
+            });
+            webviewPanel.onDidDispose(() => configSub.dispose());
         });
     }
     updatePreview(document, webview) {

@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "publisher": "your-name",
   "engines": {
-    "vscode": "^1.60.0"
+  "vscode": "^1.60.0"
   },
   "activationEvents": [
     "onLanguage:blend",
@@ -14,6 +14,25 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Blend Preview",
+      "properties": {
+        "blendPreview.gallery.thumbnailHeight": {
+          "type": "number",
+          "default": 140,
+          "minimum": 60,
+          "maximum": 512,
+          "description": "Height (in pixels) for image thumbnails in the gallery."
+        },
+        "blendPreview.gallery.columns": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 8,
+          "description": "Number of columns for the image gallery. 0 uses auto-fill responsive layout."
+        }
+      }
+    },
     "languages": [
       {
         "id": "blend",

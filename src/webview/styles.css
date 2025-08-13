@@ -7,6 +7,8 @@
     --primary-hover: var(--vscode-button-hoverBackground, #1177bb);
     --border: var(--vscode-editorGroup-border, rgba(255,255,255,0.08));
     --card: rgba(255,255,255,0.03);
+    --thumb-h: 140px; /* updated dynamically */
+    --gallery-cols: auto; /* updated dynamically - number or 'auto' */
 }
 
 html, body { height: 100%; }
@@ -37,9 +39,11 @@ h1, h2, h3 { margin: 0 0 8px; }
 p { color: var(--muted); }
 
 /* Gallery */
-.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+.gallery { display: grid; gap: 10px; }
+.gallery { grid-template-columns: repeat(var(--gallery-cols), minmax(180px, 1fr)); }
+.gallery { grid-auto-flow: row dense; }
 .card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-.card img { width: 100%; height: 140px; object-fit: cover; display: block; background: #222; }
+.card img { width: 100%; height: var(--thumb-h); object-fit: cover; display: block; background: #222; }
 .card figcaption { font-size: 12px; padding: 6px 8px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .thumb { display: block; }
 

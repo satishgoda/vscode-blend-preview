@@ -36,6 +36,9 @@ window.addEventListener('message', event => {
         case 'update':
             updatePreview(message.content);
             break;
+        case 'settings':
+            applySettings(message.payload);
+            break;
     }
 });
 function updatePreview(content) {
@@ -62,4 +65,14 @@ function enableFileOpenLinks() {
     };
     document.removeEventListener('click', handler);
     document.addEventListener('click', handler);
+}
+function applySettings(payload) {
+    const root = document.documentElement;
+    if (typeof (payload === null || payload === void 0 ? void 0 : payload.thumbnailHeight) === 'number') {
+        root.style.setProperty('--thumb-h', `${Math.max(60, Math.min(512, payload.thumbnailHeight))}px`);
+    }
+    if (typeof (payload === null || payload === void 0 ? void 0 : payload.columns) === 'number') {
+        const cols = Math.max(0, Math.min(8, payload.columns));
+        root.style.setProperty('--gallery-cols', cols > 0 ? String(cols) : 'auto');
+    }
 }

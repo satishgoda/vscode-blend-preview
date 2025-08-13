@@ -65,6 +65,21 @@ export class BlendCustomEditor implements vscode.CustomReadonlyEditorProvider {
                 this.updatePreview(document, webviewPanel.webview);
             }
         });
+
+        // Push initial settings and update upon configuration changes
+        const pushSettings = () => {
+            const config = vscode.workspace.getConfiguration('blendPreview');
+            const thumbnailHeight = config.get<number>('gallery.thumbnailHeight', 140);
+            const columns = config.get<number>('gallery.columns', 0);
+            webviewPanel.webview.postMessage({ type: 'settings', payload: { thumbnailHeight, columns } });
+        };
+        pushSettings();
+        const configSub = vscode.workspace.onDidChangeConfiguration(e => {
+            if (e.affectsConfiguration('blendPreview.gallery.thumbnailHeight') || e.affectsConfiguration('blendPreview.gallery.columns')) {
+                pushSettings();
+            }
+        });
+        webviewPanel.onDidDispose(() => configSub.dispose());
     }
 
     private async updatePreview(document: vscode.CustomDocument, webview: vscode.Webview) {
