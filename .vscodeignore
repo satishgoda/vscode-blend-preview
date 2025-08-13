@@ -1,13 +1,38 @@
-# The contents of the file /vscode-blend-preview/vscode-blend-preview/.vscodeignore
+# Development files
+.vscode/**
+.git/**
+.github/**
+.gitignore
+tsconfig*.json
+**/*.ts
+**/*.map
 
-**.vscode/**
-**node_modules/**
-**dist/**
-**.git/**
-**.DS_Store**
-**.env**
-**.vscode-test/**
-**coverage/**
-***.log**
-***.tmp**
-***.blend**
+# Sources (ship compiled JS in out/)
+src/**
+
+# Node modules and dependencies
+node_modules/**
+
+# Build and cache directories
+dist/**
+coverage/**
+.vscode-test/**
+
+# Test files
+test/**
+tests/**
+**/*.test.*
+**/*.spec.*
+
+# Temporary and log files
+**/*.log
+**/*.tmp
+
+# Environment files
+.env
+
+# OS specific files
+.DS_Store
+
+# Project specific files
+**/*.blend

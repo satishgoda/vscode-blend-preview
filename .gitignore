@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Builds and caches
+out/
+dist/
+lib/
+coverage/
+.cache/
+*.tsbuildinfo
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Environment (keep an .env.example committed if needed)
+.env
+.env.*
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editors/IDE
+*.swp
+
+# VS Code project settings (keep shared configs)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# VSIX packages
+*.vsix
+
+# Optional: local-only assets for testing (create and keep this folder local)
+local_assets/
