@@ -2,6 +2,8 @@
 
 This project is a Visual Studio Code extension that provides a custom editor for .blend files, allowing users to view and interact with the contents of Blender files directly within the editor.
 
+![alt text](images/vscode-blend-preview.png)
+
 ## Features
 
 - Custom editor for .blend files
