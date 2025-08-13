@@ -13,7 +13,7 @@ This project is a Visual Studio Code extension that provides a custom editor for
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/vscode-blend-preview.git
+   git clone https://github.com/satishgoda/vscode-blend-preview.git
    ```
 
 2. Navigate to the project directory:
