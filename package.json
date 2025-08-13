@@ -4,8 +4,9 @@
   "description": "A Visual Studio Code extension for previewing .blend files.",
   "version": "0.1.0",
   "publisher": "your-name",
+  "license": "MIT",
   "engines": {
-  "vscode": "^1.60.0"
+    "vscode": "^1.60.0"
   },
   "activationEvents": [
     "onLanguage:blend",
