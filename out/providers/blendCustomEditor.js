@@ -48,11 +48,14 @@ class BlendCustomEditor {
     }
     resolveCustomEditor(document, webviewPanel, _token) {
         return __awaiter(this, void 0, void 0, function* () {
+            // Allow loading scripts and local resources, including files from the same directory as the opened .blend
             webviewPanel.webview.options = {
                 enableScripts: true,
                 localResourceRoots: [
                     vscode.Uri.joinPath(this.context.extensionUri, 'out', 'webview'),
-                    vscode.Uri.joinPath(this.context.extensionUri, 'src', 'webview')
+                    vscode.Uri.joinPath(this.context.extensionUri, 'src', 'webview'),
+                    // Crucial for thumbnails: permit the directory of the current document
+                    vscode.Uri.file(path.dirname(document.uri.fsPath))
                 ]
             };
             webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
@@ -68,6 +71,25 @@ class BlendCustomEditor {
             watcher.onDidCreate(refresh);
             watcher.onDidDelete(refresh);
             webviewPanel.onDidDispose(() => watcher.dispose());
+            // Handle messages from the webview (e.g., open a related file in the editor)
+            webviewPanel.webview.onDidReceiveMessage((message) => __awaiter(this, void 0, void 0, function* () {
+                var _a;
+                if (!message || typeof message !== 'object')
+                    return;
+                if (message.type === 'openFile' && typeof message.uri === 'string') {
+                    try {
+                        const target = vscode.Uri.parse(message.uri);
+                        yield vscode.commands.executeCommand('vscode.open', target);
+                    }
+                    catch (e) {
+                        vscode.window.showErrorMessage(`Blend Preview: failed to open file: ${(_a = e === null || e === void 0 ? void 0 : e.message) !== null && _a !== void 0 ? _a : String(e)}`);
+                    }
+                    return;
+                }
+                if (message.type === 'refresh') {
+                    this.updatePreview(document, webviewPanel.webview);
+                }
+            }));
         });
     }
     updatePreview(document, webview) {
@@ -92,21 +114,32 @@ class BlendCustomEditor {
                 const imageTags = images.map(name => {
                     const fileUri = vscode.Uri.file(path.join(dir, name));
                     const webUri = webview.asWebviewUri(fileUri);
-                    return `<figure><img src="${webUri}" alt="${this.escapeHtml(name)}"><figcaption>${this.escapeHtml(name)}</figcaption></figure>`;
+                    const fileUriString = fileUri.toString();
+                    return `<figure class="card">
+                            <a href="#" class="thumb" data-file="${this.escapeHtml(fileUriString)}" title="Open ${this.escapeHtml(name)}">
+                                <img src="${webUri}" alt="${this.escapeHtml(name)}" loading="lazy"/>
+                            </a>
+                            <figcaption><a href="#" data-file="${this.escapeHtml(fileUriString)}">${this.escapeHtml(name)}</a></figcaption>
+                        </figure>`;
                 }).join('');
                 const listItems = related.length
-                    ? related.map(n => `<li>${this.escapeHtml(n)}</li>`).join('')
+                    ? related.map(n => {
+                        const fileUri = vscode.Uri.file(path.join(dir, n));
+                        const fileUriString = fileUri.toString();
+                        return `<li><a href="#" data-file="${this.escapeHtml(fileUriString)}">${this.escapeHtml(n)}</a></li>`;
+                    }).join('')
                     : '<li><em>No related files found</em></li>';
                 const content = `
                 <h1>${this.escapeHtml(path.basename(filePath))}</h1>
-
-                <h2>Related files</h2>
-                <ul class="related">${listItems}</ul>
-
-                ${images.length ? `<h2>Images</h2><div class="gallery">${imageTags}</div>` : ''}
-
-                <h2>Parsed data</h2>
-                <pre>${this.escapeHtml(JSON.stringify(parsed, null, 2))}</pre>
+                <section>
+                    <h2>Related files</h2>
+                    <ul class="related">${listItems}</ul>
+                </section>
+                ${images.length ? `<section><h2>Images</h2><div class="gallery">${imageTags}</div></section>` : ''}
+                <section>
+                    <h2>Parsed data</h2>
+                    <pre>${this.escapeHtml(JSON.stringify(parsed, null, 2))}</pre>
+                </section>
             `;
                 webview.postMessage({ type: 'update', content });
             }
@@ -124,16 +157,13 @@ class BlendCustomEditor {
             <head>
                 <meta charset="UTF-8">
                 <meta http-equiv="Content-Security-Policy"
-                      content="default-src 'none'; style-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
+                      content="default-src 'none'; style-src ${webview.cspSource}; img-src ${webview.cspSource} https: data:; script-src 'nonce-${nonce}';">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <link href="${styleUri}" rel="stylesheet">
                 <title>Blend Preview</title>
             </head>
             <body>
-                <div id="content">
-                    <h1>Blend File Preview</h1>
-                    <p>Blend file content will be displayed here.</p>
-                </div>
+                <div id="content" class="app"></div>
                 <script nonce="${nonce}" src="${scriptUri}"></script>
             </body>
             </html>`;

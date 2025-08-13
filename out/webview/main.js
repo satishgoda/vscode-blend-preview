@@ -5,13 +5,29 @@ const vscode = acquireVsCodeApi();
 // Handle the webview's lifecycle
 window.addEventListener('load', () => {
     console.log('Blend preview webview loaded');
-    initializePreview();
+    initializeAppShell();
 });
-function initializePreview() {
-    const contentDiv = document.getElementById('content');
-    if (contentDiv) {
-        contentDiv.innerHTML = '<p>Blend file preview will be displayed here.</p>';
-    }
+function initializeAppShell() {
+    var _a;
+    const root = document.getElementById('content');
+    if (!root)
+        return;
+    root.innerHTML = `
+        <header class="toolbar">
+            <div class="title">Blend Preview</div>
+            <div class="actions">
+                <button class="btn btn-secondary" id="refreshBtn" title="Refresh">⟳</button>
+            </div>
+        </header>
+        <main class="layout">
+            <section class="panel panel-primary" id="overview"></section>
+            <section class="panel" id="gallery"></section>
+            <section class="panel" id="details"></section>
+        </main>
+    `;
+    (_a = document.getElementById('refreshBtn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
+        vscode.postMessage({ type: 'refresh' });
+    });
 }
 // Handle messages from the extension
 window.addEventListener('message', event => {
@@ -23,8 +39,27 @@ window.addEventListener('message', event => {
     }
 });
 function updatePreview(content) {
-    const contentDiv = document.getElementById('content');
-    if (contentDiv) {
-        contentDiv.innerHTML = content;
-    }
+    const overview = document.getElementById('overview');
+    if (!overview)
+        return;
+    // Inject server-provided HTML into the overview; keep gallery clicks wired globally
+    overview.innerHTML = content;
+    enableFileOpenLinks();
+}
+function enableFileOpenLinks() {
+    const handler = (e) => {
+        const target = e.target;
+        if (!target)
+            return;
+        const anchor = target.closest('a[data-file]');
+        if (!anchor)
+            return;
+        e.preventDefault();
+        const uri = anchor.getAttribute('data-file');
+        if (uri) {
+            vscode.postMessage({ type: 'openFile', uri });
+        }
+    };
+    document.removeEventListener('click', handler);
+    document.addEventListener('click', handler);
 }
