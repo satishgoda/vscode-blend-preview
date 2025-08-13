@@ -1,0 +1,13 @@
+# The contents of the file /vscode-blend-preview/vscode-blend-preview/.vscodeignore
+
+**.vscode/**
+**node_modules/**
+**dist/**
+**.git/**
+**.DS_Store**
+**.env**
+**.vscode-test/**
+**coverage/**
+***.log**
+***.tmp**
+***.blend**

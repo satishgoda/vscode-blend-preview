@@ -1,0 +1,54 @@
+{
+  "name": "vscode-blend-preview",
+  "displayName": "Blend Preview",
+  "description": "A Visual Studio Code extension for previewing .blend files.",
+  "version": "0.1.0",
+  "publisher": "your-name",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "activationEvents": [
+    "onLanguage:blend",
+    "onCommand:blendPreview.open"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "blendPreview.blendEditor",
+        "displayName": "Blend File Editor",
+        "selector": [
+          {
+            "language": "blend",
+            "scheme": "file"
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "blendPreview.open",
+        "title": "Open Blend Preview"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "tsc -p ./",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.0",
+    "@types/vscode": "^1.60.0",
+    "@types/node": "^16.x",
+    "webpack": "^5.0.0",
+    "webpack-cli": "^4.0.0"
+  },
+  "dependencies": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/satishgoda/vscode-blend-preview.git"
+  }
+}
